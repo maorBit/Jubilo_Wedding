@@ -1,74 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>Jubilo Games WebGL</title>
-  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <style>
     html, body {
-      height: 100%; margin: 0; padding: 0;
-      overflow: hidden; background: #000;
-      padding-top: env(safe-area-inset-top);
-      padding-right: env(safe-area-inset-right);
-      padding-bottom: env(safe-area-inset-bottom);
-      padding-left: env(safe-area-inset-left);
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      touch-action: none;
+      -webkit-overflow-scrolling: touch;
+      font-family: sans-serif;
     }
-    /* מכסה את כל המסך גם תחת סרגלי הניווט */
+
     #unity-container, #unity-canvas {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      width: 100%; height: 100%;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
     }
-    .unity-mobile #unity-container,
-    .unity-mobile #unity-canvas {
-      width: 100vw !important;
-      height: 100vh !important;
+
+    #unity-canvas {
+      display: block;
+      background: #000;
     }
+
     #unity-loading-bar {
-      position: absolute; width: 60%; height: 30px;
-      left: 50%; top: 50%; transform: translate(-50%, -50%);
-      background: #444; border-radius: 5px; overflow: hidden; z-index: 10;
+      position: absolute;
+      width: 60%; height: 30px;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      background: #444; border-radius: 5px;
+      z-index: 10;
+      overflow: hidden;
     }
-    #unity-progress-bar-empty { width: 100%; height: 100%; }
+
     #unity-progress-bar-full {
-      width: 0%; height: 100%; background: #29d; transition: width .2s;
+      width: 0%;
+      height: 100%;
+      background: #29d;
+      transition: width 0.2s;
     }
+
     #unity-loading-text {
-      position: absolute; width: 100%; top: 0;
-      line-height: 30px; text-align: center;
-      font-family: sans-serif; color: #fff; font-size: 14px;
+      position: absolute;
+      width: 100%;
+      top: 0;
+      line-height: 30px;
+      text-align: center;
+      font-size: 14px;
+      color: #fff;
+    }
+
+    #unity-warning {
+      position: absolute;
+      top: 10px;
+      width: 100%;
+      text-align: center;
       pointer-events: none;
     }
-    #unity-warning {
-      position: absolute; top: 10px; width: 100%; text-align: center; pointer-events: none; z-index: 20;
-    }
+
     #unity-warning div {
-      display: inline-block; background: yellow; padding: 10px; border-radius: 5px;
+      background: yellow;
+      padding: 10px;
+      border-radius: 5px;
+      display: inline-block;
     }
+
     #unity-footer {
       position: absolute;
       bottom: calc(env(safe-area-inset-bottom) + 10px);
-      left: 0; right: 0;
+      width: 100%;
       text-align: center;
-      font-family: sans-serif; color: #888; font-size: 12px;
-      z-index: 5;
+      font-size: 12px;
+      color: #888;
     }
+
     #unity-fullscreen-button {
-      cursor: pointer; display: inline-block;
-      padding: 5px 10px; background: rgba(255,255,255,0.2);
-      border-radius: 3px; margin-left: 10px;
+      cursor: pointer;
+      display: inline-block;
+      padding: 5px 10px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 3px;
+      margin-left: 10px;
     }
   </style>
 </head>
 <body>
   <div id="unity-container">
     <canvas id="unity-canvas" tabindex="-1"></canvas>
+
     <div id="unity-loading-bar">
-      <div id="unity-progress-bar-empty">
-        <div id="unity-progress-bar-full"></div>
-      </div>
+      <div id="unity-progress-bar-full"></div>
       <div id="unity-loading-text">Loading... 0%</div>
     </div>
+
     <div id="unity-warning"></div>
     <div id="unity-footer">
       Jubilo Games <span id="unity-fullscreen-button">[Fullscreen]</span>
@@ -82,14 +111,13 @@
       const warning = document.getElementById('unity-warning');
       const div = document.createElement('div');
       div.innerHTML = msg;
-      div.style.background = (type === 'error' ? 'red' : 'yellow');
+      if (type === 'error') div.style.background = 'red';
       warning.appendChild(div);
       if (type === 'warning') setTimeout(() => warning.removeChild(div), 5000);
     }
 
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/Jubilo_Wedding.loader.js";
-    // השתמש ב-DPR של המכשיר לשיפור איכות
     const config = {
       dataUrl: buildUrl + "/Jubilo_Wedding.data",
       frameworkUrl: buildUrl + "/Jubilo_Wedding.framework.js",
@@ -99,22 +127,17 @@
       productName: "Jubilo Games",
       productVersion: "1.0",
       showBanner: unityShowBanner,
-      devicePixelRatio: window.devicePixelRatio || 1
+      devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2)
     };
 
-    const canvas      = document.getElementById("unity-canvas");
-    const loadingBar  = document.getElementById("unity-loading-bar");
+    const canvas = document.getElementById("unity-canvas");
+    const loadingBar = document.getElementById("unity-loading-bar");
     const progressBar = document.getElementById("unity-progress-bar-full");
     const loadingText = document.getElementById("unity-loading-text");
-    const fsButton    = document.getElementById("unity-fullscreen-button");
-
-    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-      document.documentElement.classList.add('unity-mobile');
-      // אפשר להגביה איכות במובייל עד DPR 2
-      config.devicePixelRatio = Math.min(window.devicePixelRatio, 2);
-    }
+    const fsButton = document.getElementById("unity-fullscreen-button");
 
     loadingBar.style.display = "block";
+
     const script = document.createElement("script");
     script.src = loaderUrl;
     script.onload = () => {
@@ -125,13 +148,17 @@
       }).then((instance) => {
         unityInstance = instance;
         loadingBar.style.display = "none";
-        // redraw fix למובייל
-        setTimeout(() => {
-          canvas.style.display = 'none'; canvas.offsetHeight; canvas.style.display = 'block';
-        }, 100);
         fsButton.onclick = () => unityInstance.SetFullscreen(1);
+
+        // Fix mobile redraw issue
+        setTimeout(() => {
+          canvas.style.display = 'none';
+          canvas.offsetHeight;
+          canvas.style.display = 'block';
+        }, 200);
       }).catch((e) => unityShowBanner(e.message, 'error'));
     };
+
     document.body.appendChild(script);
   </script>
 </body>
