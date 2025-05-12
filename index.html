@@ -3,33 +3,26 @@
 <head>
   <meta charset="utf-8">
   <title>Jubilo Games WebGL</title>
-  <!-- תמיכה ב-safe-area למכשירי iOS עם notch -->
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes, viewport-fit=cover">
   <style>
-    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #000; }
-    /* הוספת padding למטה בהתחשב ב-safe-area-inset */
-    body { 
+    html, body {
+      height: 100%; margin: 0; padding: 0;
+      overflow: hidden; background: #000;
       padding-top: env(safe-area-inset-top);
       padding-right: env(safe-area-inset-right);
       padding-bottom: env(safe-area-inset-bottom);
       padding-left: env(safe-area-inset-left);
     }
-
     #unity-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
     #unity-canvas    { width: 100%; height: 100%; background: #000; }
-
-    /* חוקים למובייל */
     .unity-mobile #unity-container,
     .unity-mobile #unity-canvas {
       width: 100vw !important;
       height: 100vh !important;
     }
-
     #unity-loading-bar {
-      position: absolute;
-      width: 60%; height: 30px;
-      left: 50%; top: 50%;
-      transform: translate(-50%,-50%);
+      position: absolute; width: 60%; height: 30px;
+      left: 50%; top: 50%; transform: translate(-50%, -50%);
       background: #444; border-radius: 5px; overflow: hidden;
     }
     #unity-progress-bar-empty { width: 100%; height: 100%; }
@@ -40,14 +33,12 @@
       font-family: sans-serif; color: #fff; font-size: 14px;
       pointer-events: none;
     }
-
     #unity-warning {
       position: absolute; top: 10px; width: 100%; text-align: center; pointer-events: none;
     }
     #unity-warning div {
       display: inline-block; background: yellow; padding: 10px; border-radius: 5px;
     }
-
     #unity-footer {
       position: absolute;
       bottom: calc(env(safe-area-inset-bottom) + 10px);
@@ -78,6 +69,8 @@
   </div>
 
   <script>
+    let unityInstance = null; // ✅ global instance
+
     function unityShowBanner(msg, type) {
       const warning = document.getElementById('unity-warning');
       const div = document.createElement('div');
@@ -87,9 +80,9 @@
       if (type === 'warning') setTimeout(() => warning.removeChild(div), 5000);
     }
 
-    const buildUrl  = "Build";
+    const buildUrl = "Build";
     const loaderUrl = buildUrl + "/Jubilo_Wedding.loader.js";
-    const config    = {
+    const config = {
       dataUrl: buildUrl + "/Jubilo_Wedding.data",
       frameworkUrl: buildUrl + "/Jubilo_Wedding.framework.js",
       codeUrl: buildUrl + "/Jubilo_Wedding.wasm",
@@ -100,29 +93,38 @@
       showBanner: unityShowBanner,
     };
 
-    const canvas     = document.getElementById("unity-canvas");
-    const container  = document.getElementById("unity-container");
-    const loadingBar = document.getElementById("unity-loading-bar");
-    const progressFull = document.getElementById("unity-progress-bar-full");
-    const loadingText  = document.getElementById("unity-loading-text");
-    const fsButton     = document.getElementById("unity-fullscreen-button");
+    const canvas      = document.getElementById("unity-canvas");
+    const container   = document.getElementById("unity-container");
+    const loadingBar  = document.getElementById("unity-loading-bar");
+    const progressBar = document.getElementById("unity-progress-bar-full");
+    const loadingText = document.getElementById("unity-loading-text");
+    const fsButton    = document.getElementById("unity-fullscreen-button");
 
-    // אם מובייל – להוסיף class ולקבוע DPR ל-1
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
       document.documentElement.classList.add('unity-mobile');
       config.devicePixelRatio = 1;
     }
 
     loadingBar.style.display = "block";
+
     const script = document.createElement("script");
     script.src = loaderUrl;
     script.onload = () => {
       createUnityInstance(canvas, config, (progress) => {
         const pct = Math.round(progress * 100);
-        progressFull.style.width = pct + "%";
+        progressBar.style.width = pct + "%";
         loadingText.textContent = `Loading... ${pct}%`;
-      }).then((unityInstance) => {
+      }).then((instance) => {
+        unityInstance = instance; // ✅ store reference globally
         loadingBar.style.display = "none";
+
+        // ✅ force canvas redraw fix (for mobile black screen)
+        setTimeout(() => {
+          canvas.style.display = 'none';
+          canvas.offsetHeight;
+          canvas.style.display = 'block';
+        }, 100);
+
         fsButton.onclick = () => unityInstance.SetFullscreen(1);
       }).catch((e) => {
         unityShowBanner(e.message, 'error');
