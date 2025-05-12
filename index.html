@@ -5,6 +5,12 @@
   <title>Jubilo Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="screen-orientation" content="portrait">
+
+  <!-- FORCE unityInstance global BEFORE any Unity scripts load -->
+  <script>
+    window.unityInstance = null;
+  </script>
+
   <style>
     html, body {
       margin: 0; padding: 0;
@@ -60,9 +66,6 @@
   </div>
 
   <script>
-    // make unityInstance global
-    var unityInstance = null;
-
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/Jubilo_Wedding.loader.js";
     const config = {
@@ -83,13 +86,14 @@
     const canvas = document.getElementById("unity-canvas");
     const loadingBar = document.getElementById("unity-loading-bar");
 
+    // Load the Unity loader
     const script = document.createElement("script");
     script.src = loaderUrl;
     script.onload = () => {
       createUnityInstance(canvas, config, updateProgress)
         .then((instance) => {
-          // store globally so framework.js and your capture code can use it
-          unityInstance = instance;
+          // assign to the same global you declared up in the head
+          window.unityInstance = instance;
           loadingBar.style.display = "none";
         })
         .catch((e) => {
