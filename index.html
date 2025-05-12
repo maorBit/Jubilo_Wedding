@@ -1,95 +1,130 @@
 <!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="utf-8" />
-    <title>Jubilo Wedding Game</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="TemplateData/style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-    <script>
-      window.emailjsReady = false;
-      (function () {
-        emailjs.init("JCfEnadXLBXD3_Ds8");
-        window.emailjsReady = true;
-        console.log("✅ EmailJS initialized");
-      })();
-    </script>
-    <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        overflow: hidden;
-        background: #ffffff;
-      }
-      #unity-container {
-        width: 100%;
-        height: 100%;
-        position: relative;
-      }
-      #unity-canvas {
-        width: 100%;
-        height: 100%;
-        background: black;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" tabindex="-1"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Jubilo Games WebGL</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background: #000; }
+    #unity-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    #unity-canvas { width: 100%; height: 100%; background: #000; }
+    #unity-loading-bar {
+      position: absolute;
+      width: 60%;
+      height: 30px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: #444;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    #unity-progress-bar-empty { width: 100%; height: 100%; }
+    #unity-progress-bar-full {
+      width: 0%;
+      height: 100%;
+      background: #29d;
+      transition: width 0.2s;
+    }
+    #unity-loading-text {
+      position: absolute;
+      width: 100%;
+      top: 0;
+      line-height: 30px;
+      text-align: center;
+      font-family: sans-serif;
+      color: #fff;
+      font-size: 14px;
+      pointer-events: none;
+    }
+    #unity-warning { position: absolute; top: 10px; width: 100%; text-align: center; pointer-events: none; }
+    #unity-warning div { display: inline-block; background: yellow; padding: 10px; border-radius: 5px; }
+    #unity-footer {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-family: sans-serif;
+      color: #888;
+      font-size: 12px;
+    }
+    #unity-fullscreen-button {
+      cursor: pointer;
+      display: inline-block;
+      padding: 5px 10px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 3px;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="unity-container">
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+    <div id="unity-loading-bar">
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
       </div>
-      <div id="unity-warning"></div>
-      <div id="unity-footer">
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">Jubilo Wedding Game</div>
-      </div>
+      <div id="unity-loading-text">Loading... 0%</div>
     </div>
+    <div id="unity-warning"></div>
+    <div id="unity-footer">
+      Jubilo Games
+      <span id="unity-fullscreen-button">[Fullscreen]</span>
+    </div>
+  </div>
 
-    <script>
-      var buildName = "Jubilo_Wedding";
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/" + buildName + ".loader.js";
+  <script>
+    // פונקציית הצגת אזהרות/טעויות
+    function unityShowBanner(msg, type) {
+      const warningBanner = document.getElementById('unity-warning');
+      const div = document.createElement('div');
+      div.innerHTML = msg;
+      if (type === 'error') div.style.background = 'red';
+      warningBanner.appendChild(div);
+      if (type === 'warning') {
+        setTimeout(() => warningBanner.removeChild(div), 5000);
+      }
+    }
 
-      var config = {
-        dataUrl: buildUrl + "/" + buildName + ".data",
-        frameworkUrl: buildUrl + "/" + buildName + ".framework.js",
-        codeUrl: buildUrl + "/" + buildName + ".wasm",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "Jubilo",
-        productName: "Jubilo Wedding Game",
-        productVersion: "1.0",
-        showBanner: function (msg, type) {
-          console.log(msg);
-        }
-      };
+    // נתיבי הקבצים בתיקיית Build
+    const buildUrl = "Build";
+    const loaderUrl = buildUrl + "/Jubilo_Wedding.loader.js";
+    const config = {
+      dataUrl: buildUrl + "/Jubilo_Wedding.data",
+      frameworkUrl: buildUrl + "/Jubilo_Wedding.framework.js",
+      codeUrl: buildUrl + "/Jubilo_Wedding.wasm",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "Jubilo Games",
+      productName: "Jubilo Games",
+      productVersion: "1.0",
+      showBanner: unityShowBanner,
+    };
 
-      var container = document.querySelector("#unity-container");
-      var canvas = document.querySelector("#unity-canvas");
-      var loadingBar = document.querySelector("#unity-loading-bar");
-      var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+    const canvas = document.getElementById("unity-canvas");
+    const loadingBar = document.getElementById("unity-loading-bar");
+    const progressBarFull = document.getElementById("unity-progress-bar-full");
+    const loadingText = document.getElementById("unity-loading-text");
+    const fsButton = document.getElementById("unity-fullscreen-button");
 
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = (100 * progress) + "%";
-        }).then((unityInstance) => {
-          window.unityInstance = unityInstance;
-          loadingBar.style.display = "none";
-          fullscreenButton.onclick = () => {
-            unityInstance.SetFullscreen(1);
-          };
-        }).catch((message) => {
-          alert("❌ Failed to load Unity WebGL build:\n" + message);
-        });
-      };
-      document.body.appendChild(script);
-    </script>
-  </body>
+    // הצגת ה־loader
+    loadingBar.style.display = "block";
+
+    // טעינת ה־loader.js של Unity
+    const script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      createUnityInstance(canvas, config, (progress) => {
+        const pct = Math.round(progress * 100);
+        progressBarFull.style.width = pct + "%";
+        loadingText.textContent = `Loading... ${pct}%`;
+      }).then((unityInstance) => {
+        loadingBar.style.display = "none";
+        fsButton.onclick = () => unityInstance.SetFullscreen(1);
+      }).catch((e) => {
+        unityShowBanner(e.message, 'error');
+      });
+    };
+    document.body.appendChild(script);
+  </script>
+</body>
 </html>
