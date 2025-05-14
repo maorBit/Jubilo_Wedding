@@ -65,48 +65,50 @@
     </div>
   </div>
 
-  <script>
+    <script>
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/Jubilo_Wedding.loader.js";
+
     const config = {
-      dataUrl: buildUrl + "/Jubilo_Wedding.data",
-      frameworkUrl: buildUrl + "/Jubilo_Wedding.framework.js",
-      codeUrl: buildUrl + "/Jubilo_Wedding.wasm",
+      dataUrl:          buildUrl + "/Jubilo_Wedding.data",           // <-- no .br or .gz
+      frameworkUrl:     buildUrl + "/Jubilo_Wedding.framework.js",
+      codeUrl:          buildUrl + "/Jubilo_Wedding.wasm",
       streamingAssetsUrl: "StreamingAssets",
-      companyName: "Jubilo Games",
-      productName: "Jubilo Game",
-      productVersion: "1.0",
-      devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+      companyName:      "Jubilo Games",
+      productName:      "Jubilo Game",
+      productVersion:   "1.0",
+      devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2)
     };
 
     function updateProgress(progress) {
-      document.getElementById("unity-progress-bar-full").style.width = (100 * progress) + "%";
+      document.getElementById("unity-progress-bar-full")
+              .style.width = (100 * progress) + "%";
     }
 
-    const canvas = document.getElementById("unity-canvas");
+    const canvas    = document.getElementById("unity-canvas");
     const loadingBar = document.getElementById("unity-loading-bar");
 
-    // Load the Unity loader
+    // Load the Unity loader script
     const script = document.createElement("script");
     script.src = loaderUrl;
     script.onload = () => {
       createUnityInstance(canvas, config, updateProgress)
-        .then((instance) => {
-          // assign to the same global you declared up in the head
+        .then(instance => {
           window.unityInstance = instance;
           loadingBar.style.display = "none";
         })
-        .catch((e) => {
+        .catch(e => {
           console.error(e);
-          alert("❌ Failed to load Unity WebGL.");
+          alert("Failed to load Unity WebGL.");
         });
     };
     document.body.appendChild(script);
 
-    // Optional: lock orientation to portrait where supported
+    // Optional: lock portrait
     if (screen.orientation && screen.orientation.lock) {
       screen.orientation.lock("portrait").catch(() => {});
     }
   </script>
+
 </body>
 </html>
