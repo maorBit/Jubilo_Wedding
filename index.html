@@ -7,50 +7,39 @@
   <meta name="screen-orientation" content="portrait">
 
   <!-- FORCE unityInstance global BEFORE any Unity scripts load -->
-  <script>
-    window.unityInstance = null;
-  </script>
+  <script>window.unityInstance = null;</script>
 
   <style>
     html, body {
-      margin: 0; padding: 0;
-      width: 100%; height: 100%;
-      overflow: hidden; background: #000;
-      padding-top: env(safe-area-inset-top);
-      padding-right: env(safe-area-inset-right);
-      padding-bottom: env(safe-area-inset-bottom);
-      padding-left: env(safe-area-inset-left);
+      margin:0; padding:0;
+      width:100%; height:100%;
+      overflow:hidden; background:#000;
+      padding-top:env(safe-area-inset-top);
+      padding-right:env(safe-area-inset-right);
+      padding-bottom:env(safe-area-inset-bottom);
+      padding-left:env(safe-area-inset-left);
     }
     #unity-container {
-      position: absolute; top: 0; left: 0;
-      width: 100%; height: 100%;
-      display: flex; justify-content: center; align-items: center;
-      background: #000;
+      position:absolute; top:0; left:0;
+      width:100%; height:100%;
+      display:flex; justify-content:center; align-items:center;
+      background:#000;
     }
-    #unity-canvas {
-      width: 100%; height: 100%;
-      object-fit: contain;
-    }
+    #unity-canvas { width:100%; height:100%; object-fit:contain; }
     #unity-loading-bar {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 80%; max-width: 400px;
-      text-align: center;
-      color: #fff;
-      font-family: sans-serif;
+      position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      width:80%; max-width:400px;
+      text-align:center; color:#fff; font-family:sans-serif;
     }
     #unity-progress-bar-empty {
-      width: 100%; height: 20px;
-      background: #555;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-top: 10px;
+      width:100%; height:20px;
+      background:#555; border-radius:10px;
+      overflow:hidden; margin-top:10px;
     }
     #unity-progress-bar-full {
-      width: 0%; height: 100%;
-      background: #29a;
-      transition: width 0.2s;
+      width:0%; height:100%;
+      background:#29a; transition:width 0.2s;
     }
   </style>
 </head>
@@ -65,50 +54,50 @@
     </div>
   </div>
 
-    <script>
-  const buildUrl  = "Build";
-  const loaderUrl = buildUrl + "/Jubilo_Wedding.loader.js";
+  <script>
+    // ← **IMPORTANT**: match the lowercase folder on Netlify!
+    const buildUrl  = "build";
+    const loaderUrl = buildUrl + "/Jubilo_Wedding.loader.js";
 
-  const config = {
-    dataUrl:          buildUrl + "/Jubilo_Wedding.data",
-    frameworkUrl:     buildUrl + "/Jubilo_Wedding.framework.js",
-    codeUrl:          buildUrl + "/Jubilo_Wedding.wasm",
-    streamingAssetsUrl: "StreamingAssets",
-    companyName:      "Jubilo Games",
-    productName:      "Jubilo Game",
-    productVersion:   "1.0",
-    devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2)
-  };
+    const config = {
+      dataUrl:          buildUrl + "/Jubilo_Wedding.data",
+      frameworkUrl:     buildUrl + "/Jubilo_Wedding.framework.js",
+      codeUrl:          buildUrl + "/Jubilo_Wedding.wasm",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName:      "Jubilo Games",
+      productName:      "Jubilo Game",
+      productVersion:   "1.0",
+      devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2)
+    };
 
-  function updateProgress(progress) {
-    document.getElementById("unity-progress-bar-full")
-            .style.width = (100 * progress) + "%";
-  }
+    function updateProgress(progress) {
+      document.getElementById("unity-progress-bar-full")
+              .style.width = (100 * progress) + "%";
+    }
 
-  const canvas     = document.getElementById("unity-canvas");
-  const loadingBar = document.getElementById("unity-loading-bar");
+    const canvas     = document.getElementById("unity-canvas");
+    const loadingBar = document.getElementById("unity-loading-bar");
 
-  const script = document.createElement("script");
-  script.src = loaderUrl;
-  script.onload = () => {
-    createUnityInstance(canvas, config, updateProgress)
-      .then(instance => {
-        window.unityInstance = instance;
-        loadingBar.style.display = "none";
-      })
-      .catch(e => {
-        console.error(e);
-        alert("Failed to load Unity WebGL.");
-      });
-  };
-  document.body.appendChild(script);
+    // Load Unity loader
+    const script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      createUnityInstance(canvas, config, updateProgress)
+        .then(instance => {
+          window.unityInstance = instance;
+          loadingBar.style.display = "none";
+        })
+        .catch(e => {
+          console.error(e);
+          alert("Failed to load Unity WebGL.");
+        });
+    };
+    document.body.appendChild(script);
 
-  // lock to portrait
-  if (screen.orientation && screen.orientation.lock) {
-    screen.orientation.lock("portrait").catch(()=>{});
-  }
-</script>
-
-
+    // Lock orientation to portrait if supported
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock("portrait").catch(()=>{});
+    }
+  </script>
 </body>
 </html>
