@@ -69,14 +69,13 @@
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/Jubilo_Wedding.loader.js";
     const config = {
-      // point to the Brotli-compressed files:
-      dataUrl:      buildUrl + "/Jubilo_Wedding.data.br",
-      frameworkUrl: buildUrl + "/Jubilo_Wedding.framework.js.br",
-      codeUrl:      buildUrl + "/Jubilo_Wedding.wasm.br",
+      dataUrl: buildUrl + "/Jubilo_Wedding.data",
+      frameworkUrl: buildUrl + "/Jubilo_Wedding.framework.js",
+      codeUrl: buildUrl + "/Jubilo_Wedding.wasm",
       streamingAssetsUrl: "StreamingAssets",
-      companyName:   "Jubilo Games",
-      productName:   "Jubilo Game",
-      productVersion:"1.0",
+      companyName: "Jubilo Games",
+      productName: "Jubilo Game",
+      productVersion: "1.0",
       devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
     };
 
@@ -93,6 +92,7 @@
     script.onload = () => {
       createUnityInstance(canvas, config, updateProgress)
         .then((instance) => {
+          // assign to the same global you declared up in the head
           window.unityInstance = instance;
           loadingBar.style.display = "none";
         })
