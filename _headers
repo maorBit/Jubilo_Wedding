@@ -1,11 +1,11 @@
-/Build/*.js
-  Content-Encoding: gzip
+/Build/*.js.unityweb
   Content-Type: application/javascript
-
-/Build/*.wasm
   Content-Encoding: gzip
+
+/Build/*.wasm.unityweb
   Content-Type: application/wasm
-
-/Build/*.data
   Content-Encoding: gzip
+
+/Build/*.data.unityweb
   Content-Type: application/octet-stream
+  Content-Encoding: gzip
